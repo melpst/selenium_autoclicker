@@ -9,7 +9,8 @@ import os
 import time
 import re
 
-DELAY = 3
+TIMEOUT = 30
+DELAY = 1
 INTRO = 35
 OUTRO = 30
 
@@ -32,6 +33,9 @@ def main():
 
         end loop if no more episode
         quit
+
+        improvement
+        1. skip intro
     """
 
     load_dotenv()
@@ -40,17 +44,21 @@ def main():
     password = os.getenv('PASSWORD')
 
     driver = webdriver.Chrome()
-    driver.implicitly_wait(10)
+    driver.implicitly_wait(TIMEOUT)
+    driver.set_page_load_timeout(TIMEOUT)
+    driver.set_script_timeout(TIMEOUT)
 
     driver.get(url)
     login(driver, username, password)
     goto(driver, By.CLASS_NAME, 'recent-carousel')
     goto(driver, By.CLASS_NAME, 'season')
-    (current_episode, left) = search_for_unwatched_episode(driver)
     
+    (current_episode, left) = search_for_unwatched_episode(driver)
+    left = left if EPISODE_TO_WATCH<0 else EPISODE_TO_WATCH
+
     for i in range(0, left):
         print(f'currently playing episode {current_episode+i}')
-        time.sleep(DELAY)
+        time.sleep(5)
         toggle_full_screen(driver)
         
         interval = get_duration(driver)
@@ -92,7 +100,9 @@ def search_for_unwatched_episode(driver: WebDriver) -> List[int]:
     
 def toggle_full_screen(driver: WebDriver) -> None:
     control_panel = driver.find_element(by=By.CLASS_NAME, value='media-control')
-    driver.execute_script("arguments[0].setAttribute('class', 'media-control')", control_panel)
+    driver.execute_async_script("arguments[0].setAttribute('class', 'media-control')", control_panel)
+    time.sleep(DELAY)
+
     elements = driver.find_elements(by=By.CLASS_NAME, value='media-control-button')
     list(filter(lambda x: x.accessible_name == 'fullscreen', elements))[0].click()
     time.sleep(DELAY)
