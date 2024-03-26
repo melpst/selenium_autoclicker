@@ -12,7 +12,8 @@ import re
 TIMEOUT = 30
 DELAY = 1
 INTRO = 35
-OUTRO = 30
+OUTRO = 10
+EPISODE_TO_WATCH = -1
 
 def main():
     print('Start scraping')
@@ -36,6 +37,11 @@ def main():
 
         improvement
         1. skip intro
+        2. write as OOP
+        3. maybe also functional?
+        4. add tests
+        5. store session
+        6. skip login if session is valid
     """
 
     load_dotenv()
@@ -46,7 +52,6 @@ def main():
     driver = webdriver.Chrome()
     driver.implicitly_wait(TIMEOUT)
     driver.set_page_load_timeout(TIMEOUT)
-    driver.set_script_timeout(TIMEOUT)
 
     driver.get(url)
     login(driver, username, password)
@@ -100,7 +105,7 @@ def search_for_unwatched_episode(driver: WebDriver) -> List[int]:
     
 def toggle_full_screen(driver: WebDriver) -> None:
     control_panel = driver.find_element(by=By.CLASS_NAME, value='media-control')
-    driver.execute_async_script("arguments[0].setAttribute('class', 'media-control')", control_panel)
+    driver.execute_script("arguments[0].setAttribute('class', 'media-control')", control_panel)
     time.sleep(DELAY)
 
     elements = driver.find_elements(by=By.CLASS_NAME, value='media-control-button')
@@ -110,6 +115,19 @@ def toggle_full_screen(driver: WebDriver) -> None:
 def get_duration(driver: WebDriver) -> int:
     video = driver.find_element(by=By.CSS_SELECTOR, value='video')
     duration = int(video.get_property('duration'))
-    return duration-(INTRO+OUTRO)
+    return duration-OUTRO
 
+def skip_intro(driver):
+    time.sleep(0.5)
+    # video: WebElement = driver.find_element(by=By.CSS_SELECTOR, value='video')
+    # video.click()
+    # driver.execute_script(f"arguments[0].setAttribute('currentTime', {INTRO})", video)
+    # video.click()
+
+    control_panel = driver.find_element(by=By.CLASS_NAME, value='media-control')
+    driver.execute_script("arguments[0].setAttribute('class', 'media-control')", control_panel)
+    dot = driver.find_element(by=By.CLASS_NAME, value='bar-scrubber')
+    driver.execute_script(f"arguments[0].setAttribute('style', 'left: 0.5%;')", dot)
+    driver.find_element(by=By.CLASS_NAME, value='bar-scrubber')
+    
 main()
