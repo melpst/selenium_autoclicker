@@ -72,7 +72,7 @@ def main():
         toggle_full_screen(driver)
         
         next_button = driver.find_element(By.ID, 'solo-serieplay-ep-next')
-        if next_button is not None and i<left-1:
+        if next_button is not None:
             next_button.click()
         else:
             print('where is next button?')
@@ -117,17 +117,6 @@ def get_duration(driver: WebDriver) -> int:
     duration = int(video.get_property('duration'))
     return duration-OUTRO
 
-def skip_intro(driver):
-    time.sleep(0.5)
-    # video: WebElement = driver.find_element(by=By.CSS_SELECTOR, value='video')
-    # video.click()
-    # driver.execute_script(f"arguments[0].setAttribute('currentTime', {INTRO})", video)
-    # video.click()
 
-    control_panel = driver.find_element(by=By.CLASS_NAME, value='media-control')
-    driver.execute_script("arguments[0].setAttribute('class', 'media-control')", control_panel)
-    dot = driver.find_element(by=By.CLASS_NAME, value='bar-scrubber')
-    driver.execute_script(f"arguments[0].setAttribute('style', 'left: 0.5%;')", dot)
-    driver.find_element(by=By.CLASS_NAME, value='bar-scrubber')
     
 main()
