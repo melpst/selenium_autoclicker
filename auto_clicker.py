@@ -114,9 +114,8 @@ def toggle_full_screen(driver: WebDriver) -> None:
 
 def get_duration(driver: WebDriver) -> int:
     video = driver.find_element(by=By.CSS_SELECTOR, value='video')
+    current_time = int(video.get_property('currentTime'))
     duration = int(video.get_property('duration'))
-    return duration-OUTRO
+    return duration-current_time-OUTRO
 
-
-    
 main()
