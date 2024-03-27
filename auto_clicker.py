@@ -98,7 +98,7 @@ def goto(driver: WebDriver, find_by: str, value: str) -> None:
 
 def search_for_unwatched_episode(driver: WebDriver) -> List[int]:
     elements = driver.find_elements(by=By.CLASS_NAME,value='progress-bar-danger')
-    not_played = list(filter(lambda x: int(re.findall(r'\d+', x.get_attribute('style'))[0]) < 95, elements))
+    not_played = list(filter(lambda x: int(re.findall(r'\d+', x.get_attribute('style'))[0]) < 90, elements))
     not_played[0].find_element(by=By.XPATH, value='..').click()
     time.sleep(DELAY)
     return [len(elements)-len(not_played)+1,len(not_played)]
