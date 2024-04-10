@@ -12,7 +12,9 @@ import re
 TIMEOUT = 30
 DELAY = 1
 INTRO = 35
-OUTRO = 10
+OUTRO = 140
+
+SKIP_TO_EPISODE = -1
 EPISODE_TO_WATCH = -1
 
 def main():
@@ -40,8 +42,8 @@ def main():
         2. write as OOP
         3. maybe also functional?
         4. add tests
-        5. store session
-        6. skip login if session is valid
+        7. skip to episode -> exact match at class carousel-cell-left_title -> parent click
+        8. login via api instead and get session -> skip login page
     """
 
     load_dotenv()
@@ -58,7 +60,8 @@ def main():
     goto(driver, By.CLASS_NAME, 'recent-carousel')
     goto(driver, By.CLASS_NAME, 'season')
     
-    (current_episode, left) = search_for_unwatched_episode(driver)
+    (current_episode, left) = search_for_unwatched_episode(driver) if SKIP_TO_EPISODE < 1 else skip_to_episode(driver, SKIP_TO_EPISODE)
+    print(current_episode, left)
     left = left if EPISODE_TO_WATCH<0 else EPISODE_TO_WATCH
 
     for i in range(0, left):
@@ -118,4 +121,14 @@ def get_duration(driver: WebDriver) -> int:
     duration = int(video.get_property('duration'))
     return duration-current_time-OUTRO
 
+def skip_to_episode(driver: WebDriver, episode: int) -> List[int]:
+    episodes = driver.find_elements(by=By.CLASS_NAME, value='carousel-cell-left_subtitle')
+    wanted_episode = episodes[episode-1]
+    left = len(episodes)-episode
+
+    print(f'skip to episode {episode}')
+    wanted_episode.click()
+    time.sleep(DELAY)
+    return [episode, left]
+    
 main()
