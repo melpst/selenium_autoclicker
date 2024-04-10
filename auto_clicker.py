@@ -21,29 +21,15 @@ def main():
     print('Start scraping')
     
     """
-        1. open web
-        2. login
-        3. go to recently watch
-        4. click the first one
-        5. click bottom img
-        6. click latest watched+1 episode
-
-        loop from here
-        7. full screen
-        8. sleep until end
-        9. quit full screen
-        10. next episode
-
-        end loop if no more episode
-        quit
-
         improvement
         1. skip intro
         2. write as OOP
         3. maybe also functional?
         4. add tests
-        7. skip to episode -> exact match at class carousel-cell-left_title -> parent click
-        8. login via api instead and get session -> skip login page
+        5. skip to episode
+            - check if episode exist -> end program if not
+            - if episode already played (>= duration-outro) -> play again since beginning
+        6. login via api instead and get session -> skip login page
     """
 
     load_dotenv()
