@@ -22,8 +22,9 @@ load_dotenv(override=True)
 
 def create_driver() -> WebDriver:
     driver: WebDriver = webdriver.Chrome(
-        options = Options('user-data-dir=selenium')
+        options = Options().add_argument('user-data-dir=selenium')
     )
+
     driver.implicitly_wait(TIMEOUT)
     driver.set_page_load_timeout(TIMEOUT)
 
@@ -82,14 +83,12 @@ def main():
     
     time.sleep(DELAY)
     driver.quit()
-
     print('Quit successfully')
 
 def goto(driver: WebDriver, find_by: str, value: str) -> None:
     print('goto', value)
     element: WebElement = driver.find_element(by=find_by, value=value)
     element.find_element(by=By.CSS_SELECTOR, value='a').click()
-
     time.sleep(DELAY)
 
 def search_for_unwatched_episode(driver: WebDriver) -> List[int]:
@@ -99,9 +98,10 @@ def search_for_unwatched_episode(driver: WebDriver) -> List[int]:
             lambda x: int(re.findall(r'\d+', x.get_attribute('style'))[0]) < 90, elements
         )
     )
-    not_played[0].find_element(by=By.XPATH, value='..').click()
     
+    not_played[0].find_element(by=By.XPATH, value='..').click()
     time.sleep(DELAY)
+    
     return [len(elements)-len(not_played)+1,len(not_played)]
     
 def toggle_full_screen(driver: WebDriver) -> None:
@@ -113,7 +113,6 @@ def toggle_full_screen(driver: WebDriver) -> None:
     list(
         filter(lambda x: x.accessible_name == 'fullscreen', elements)
     )[0].click()
-    
     time.sleep(DELAY)
 
 def get_duration(driver: WebDriver) -> int:
@@ -131,8 +130,8 @@ def skip_to_episode(driver: WebDriver, episode: int) -> List[int]:
     
     print(f'skip to episode {episode}')
     episodes[episode-1].click()
-    
     time.sleep(DELAY)
+    
     return [episode, len(episodes)-episode]
 
 def loop(driver: WebDriver, current: int, left: int) -> None:
