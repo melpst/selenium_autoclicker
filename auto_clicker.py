@@ -17,6 +17,8 @@ OUTRO = 140
 SKIP_TO_EPISODE = -1
 EPISODE_TO_WATCH = -1
 
+load_dotenv(override=True)
+
 def main():
     print('Start scraping')
     
@@ -29,55 +31,72 @@ def main():
         5. skip to episode
             - check if episode exist -> end program if not
             - if episode already played (>= duration-outro) -> play again since beginning
-        6. login via api instead and get session -> skip login page
+        6. login via api instead and get session -> can skip login page -> use serie url
     """
 
-    load_dotenv()
-    url = os.getenv('URL')
-    username = os.getenv('USERNAME')
-    password = os.getenv('PASSWORD')
+    driver: WebDriver = add_cookies(create_driver())
 
-    driver = webdriver.Chrome()
-    driver.implicitly_wait(TIMEOUT)
-    driver.set_page_load_timeout(TIMEOUT)
-
-    driver.get(url)
-    login(driver, username, password)
-    goto(driver, By.CLASS_NAME, 'recent-carousel')
-    goto(driver, By.CLASS_NAME, 'season')
+    driver.get(os.getenv('URL'))
+    # login(driver, username, password)
+    # goto(driver, By.CLASS_NAME, 'recent-carousel')
+    # goto(driver, By.CLASS_NAME, 'season')
     
-    (current_episode, left) = search_for_unwatched_episode(driver) if SKIP_TO_EPISODE < 1 else skip_to_episode(driver, SKIP_TO_EPISODE)
-    print(current_episode, left)
-    left = left if EPISODE_TO_WATCH<0 else EPISODE_TO_WATCH
+    # (current_episode, left) = search_for_unwatched_episode(driver) if SKIP_TO_EPISODE < 1 else skip_to_episode(driver, SKIP_TO_EPISODE)
+    # print(current_episode, left)
+    # left = left if EPISODE_TO_WATCH<0 else EPISODE_TO_WATCH
 
-    for i in range(0, left):
-        print(f'currently playing episode {current_episode+i}')
-        time.sleep(5)
-        toggle_full_screen(driver)
+    # for i in range(0, left):
+    #     print(f'currently playing episode {current_episode+i}')
+    #     time.sleep(5)
+    #     toggle_full_screen(driver)
         
-        interval = get_duration(driver)
-        print(interval)
-        time.sleep(interval)
-        toggle_full_screen(driver)
+    #     interval = get_duration(driver)
+    #     print(interval)
+    #     time.sleep(interval)
+    #     toggle_full_screen(driver)
         
-        next_button = driver.find_element(By.ID, 'solo-serieplay-ep-next')
-        if next_button is not None:
-            next_button.click()
-        else:
-            print('where is next button?')
-            break
+    #     next_button = driver.find_element(By.ID, 'solo-serieplay-ep-next')
+    #     if next_button is not None:
+    #         next_button.click()
+    #     else:
+    #         print('where is next button?')
+    #         break
 
-    print('watched all~~~')
-    time.sleep(DELAY)
+    # print('watched all~~~')
+    # time.sleep(DELAY)
     driver.quit()
 
     print('Quit successfully')
 
-def login(driver: WebDriver, username: str, password: str) -> None:
-    driver.find_element(by=By.ID, value='solo_login_email').send_keys(username)
-    driver.find_element(by=By.ID, value='solo_login_password').send_keys(password)
-    driver.find_element(by=By.CLASS_NAME, value='btn-login').click()
-    time.sleep(DELAY)
+def create_driver() -> WebDriver:
+    driver: WebDriver = webdriver.Chrome()
+    driver.implicitly_wait(TIMEOUT)
+    driver.set_page_load_timeout(TIMEOUT)
+
+    return driver
+
+def add_cookies(driver: WebDriver) -> WebDriver:
+    base_cookie: dict[str, str] = {
+        'domain': 'cloud.uflixtv.com',
+        'path': '/'
+    }
+    lem: dict[str, str] = {
+        'name': 'lem',
+        'value': os.getenv('lem')
+    }
+    session: dict[str, str] = {
+        'name': 'user_loggedsession',
+        'value': os.getenv('session')
+    }
+    
+    lem.update(base_cookie)
+    session.update(base_cookie)
+    
+    driver.get(os.getenv('URL'))
+    driver.add_cookie(lem)
+    driver.add_cookie(session)
+
+    return driver
 
 def goto(driver: WebDriver, find_by: str, value: str) -> None:
     print('goto', value)
@@ -109,6 +128,10 @@ def get_duration(driver: WebDriver) -> int:
 
 def skip_to_episode(driver: WebDriver, episode: int) -> List[int]:
     episodes = driver.find_elements(by=By.CLASS_NAME, value='carousel-cell-left_subtitle')
+    
+    if len(episodes)<episode:
+        return [-1, -1]
+    
     wanted_episode = episodes[episode-1]
     left = len(episodes)-episode
 
