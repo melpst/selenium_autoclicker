@@ -10,6 +10,8 @@ import os
 import time
 import re
 
+load_dotenv(override=True)
+
 TIMEOUT = 30
 DELAY = 1
 INTRO = 35
@@ -17,8 +19,6 @@ OUTRO = 140
 
 SKIP_TO_EPISODE = -1
 EPISODE_TO_WATCH = -1
-
-load_dotenv(override=True)
 
 def create_driver() -> WebDriver:
     driver: WebDriver = webdriver.Chrome(
@@ -35,22 +35,21 @@ def add_cookies(driver: WebDriver) -> WebDriver:
         'domain': os.getenv('DOMAIN'),
         'path': '/'
     }
-    lem: Dict[str, str] = {
-        'name': 'lem',
-        'value': os.getenv('lem')
-    }
-    session: Dict[str, str] = {
-        'name': 'user_loggedsession',
-        'value': os.getenv('session')
-    }
-    
-    lem.update(base_cookie)
-    session.update(base_cookie)
 
     # enable network to edit cookie
     driver.execute_cdp_cmd('Network.enable', {})
-    driver.execute_cdp_cmd('Network.setCookie', lem)
-    driver.execute_cdp_cmd('Network.setCookie', session)
+    driver.execute_cdp_cmd('Network.setCookie', 
+                            {
+                                'name': 'lem',
+                                'value': os.getenv('lem'),
+                                **base_cookie
+                            })
+    driver.execute_cdp_cmd('Network.setCookie', 
+                            {
+                                'name': 'user_loggedsession',
+                                'value': os.getenv('session')
+                                **base_cookie
+                            })
     driver.execute_cdp_cmd('Network.disable', {})
 
     return driver
@@ -93,11 +92,9 @@ def goto(driver: WebDriver, find_by: str, value: str) -> None:
 
 def search_for_unwatched_episode(driver: WebDriver) -> List[int]:
     elements: List[WebElement] = driver.find_elements(by=By.CLASS_NAME,value='progress-bar-danger')
-    not_played: List[WebElement] = list(
-        filter(
+    not_played: List[WebElement] = list(filter(
             lambda x: int(re.findall(r'\d+', x.get_attribute('style'))[0]) < 90, elements
-        )
-    )
+        ))
     
     not_played[0].find_element(by=By.XPATH, value='..').click()
     time.sleep(DELAY)
@@ -110,9 +107,7 @@ def toggle_full_screen(driver: WebDriver) -> None:
     time.sleep(3)
 
     elements: List[WebElement] = driver.find_elements(by=By.CLASS_NAME, value='media-control-button')
-    list(
-        filter(lambda x: x.accessible_name == 'fullscreen', elements)
-    )[0].click()
+    list(filter(lambda x: x.accessible_name == 'fullscreen', elements))[0].click()
     time.sleep(DELAY)
 
 def get_duration(driver: WebDriver) -> int:
