@@ -1,8 +1,8 @@
+from dotenv import load_dotenv
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.remote.webelement import WebElement
-from dotenv import load_dotenv
 
 from typing import List
 import os
@@ -18,6 +18,41 @@ SKIP_TO_EPISODE = -1
 EPISODE_TO_WATCH = -1
 
 load_dotenv(override=True)
+
+def create_driver() -> WebDriver:
+    browser_options = Options()
+    browser_options.add_argument("user-data-dir=selenium")
+
+    driver: WebDriver = webdriver.Chrome(options=browser_options)
+    driver.implicitly_wait(TIMEOUT)
+    driver.set_page_load_timeout(TIMEOUT)
+
+    return driver
+
+def add_cookies(driver: WebDriver) -> WebDriver:
+    base_cookie: dict[str, str] = {
+        'domain': os.getenv('DOMAIN'),
+        'path': '/'
+    }
+    lem: dict[str, str] = {
+        'name': 'lem',
+        'value': os.getenv('lem')
+    }
+    session: dict[str, str] = {
+        'name': 'user_loggedsession',
+        'value': os.getenv('session')
+    }
+    
+    lem.update(base_cookie)
+    session.update(base_cookie)
+
+    # enable network to edit cookie
+    driver.execute_cdp_cmd('Network.enable', {})
+    driver.execute_cdp_cmd('Network.setCookie', lem)
+    driver.execute_cdp_cmd('Network.setCookie', session)
+    driver.execute_cdp_cmd('Network.disable', {})
+
+    return driver
 
 def main():
     print('Start scraping')
@@ -67,36 +102,6 @@ def main():
     driver.quit()
 
     print('Quit successfully')
-
-def create_driver() -> WebDriver:
-    driver: WebDriver = webdriver.Chrome()
-    driver.implicitly_wait(TIMEOUT)
-    driver.set_page_load_timeout(TIMEOUT)
-
-    return driver
-
-def add_cookies(driver: WebDriver) -> WebDriver:
-    base_cookie: dict[str, str] = {
-        'domain': 'cloud.uflixtv.com',
-        'path': '/'
-    }
-    lem: dict[str, str] = {
-        'name': 'lem',
-        'value': os.getenv('lem')
-    }
-    session: dict[str, str] = {
-        'name': 'user_loggedsession',
-        'value': os.getenv('session')
-    }
-    
-    lem.update(base_cookie)
-    session.update(base_cookie)
-    
-    driver.get(os.getenv('URL'))
-    driver.add_cookie(lem)
-    driver.add_cookie(session)
-
-    return driver
 
 def goto(driver: WebDriver, find_by: str, value: str) -> None:
     print('goto', value)
