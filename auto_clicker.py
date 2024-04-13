@@ -70,35 +70,17 @@ def main():
     """
 
     driver: WebDriver = add_cookies(create_driver())
-
     driver.get(os.getenv('URL'))
+
     # login(driver, username, password)
     # goto(driver, By.CLASS_NAME, 'recent-carousel')
     # goto(driver, By.CLASS_NAME, 'season')
     
-    # (current_episode, left) = search_for_unwatched_episode(driver) if SKIP_TO_EPISODE < 1 else skip_to_episode(driver, SKIP_TO_EPISODE)
-    # print(current_episode, left)
+    # (current, left) = search_for_unwatched_episode(driver) if SKIP_TO_EPISODE < 1 else skip_to_episode(driver, SKIP_TO_EPISODE)
     # left = left if EPISODE_TO_WATCH<0 else EPISODE_TO_WATCH
-
-    # for i in range(0, left):
-    #     print(f'currently playing episode {current_episode+i}')
-    #     time.sleep(5)
-    #     toggle_full_screen(driver)
-        
-    #     interval = get_duration(driver)
-    #     print(interval)
-    #     time.sleep(interval)
-    #     toggle_full_screen(driver)
-        
-    #     next_button = driver.find_element(By.ID, 'solo-serieplay-ep-next')
-    #     if next_button is not None:
-    #         next_button.click()
-    #     else:
-    #         print('where is next button?')
-    #         break
-
-    # print('watched all~~~')
-    # time.sleep(DELAY)
+    # loop(driver, current, left)
+    
+    time.sleep(DELAY)
     driver.quit()
 
     print('Quit successfully')
@@ -144,5 +126,25 @@ def skip_to_episode(driver: WebDriver, episode: int) -> List[int]:
     wanted_episode.click()
     time.sleep(DELAY)
     return [episode, left]
+
+def loop(driver: WebDriver, current: int, left: int) -> None:
+    for i in range(0, left):
+        print(f'currently playing episode {current+i}')
+        time.sleep(5)
+        toggle_full_screen(driver)
+        
+        interval = get_duration(driver)
+        print(interval)
+        time.sleep(interval)
+        toggle_full_screen(driver)
+        
+        next_button = driver.find_element(By.ID, 'solo-serieplay-ep-next')
+        if next_button is not None:
+            next_button.click()
+        else:
+            print('where is next button?')
+            break
+
+    print('watched all~~~')
     
 main()
