@@ -47,7 +47,7 @@ def add_cookies(driver: WebDriver) -> WebDriver:
     driver.execute_cdp_cmd('Network.setCookie', 
                             {
                                 'name': 'user_loggedsession',
-                                'value': os.getenv('session')
+                                'value': os.getenv('session'),
                                 **base_cookie
                             })
     driver.execute_cdp_cmd('Network.disable', {})
