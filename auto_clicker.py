@@ -14,11 +14,11 @@ load_dotenv(override=True)
 
 TIMEOUT = 30
 DELAY = 1
-INTRO = 35
-OUTRO = 140
+INTRO = 100
+OUTRO = 150
 
-SKIP_TO_EPISODE = -1
-EPISODE_TO_WATCH = -1
+SKIP_TO_EPISODE = None
+EPISODE_TO_WATCH = None
 
 def create_driver() -> WebDriver:
     driver: WebDriver = webdriver.Chrome(
