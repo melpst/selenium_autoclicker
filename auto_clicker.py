@@ -105,24 +105,28 @@ def get_duration(driver: WebDriver) -> int:
     video: WebElement = driver.find_element(by=By.CSS_SELECTOR, value='video')
     return int(video.get_property('duration'))-get_currenttime(driver)-OUTRO
 
-
-def skip_to_episode(driver: WebDriver, episode: int) -> List[int]:
-    episodes: List[WebElement] = driver.find_elements(by=By.CLASS_NAME, value='carousel-cell-left_subtitle')
-    
-    if len(episodes)<episode:
-        return [-1, -1]
-    
-    print(f'skip to episode {episode}')
-    episodes[episode-1].click()
+def skip_intro(driver: WebDriver) -> None:
+    print('pause')
+    video = driver.find_element(by=By.CSS_SELECTOR, value='video')
+    video.click()
     time.sleep(DELAY)
-    
-    return [episode, len(episodes)-episode]
+
+    print('skip intro')
+    dot = driver.find_element(by=By.CLASS_NAME, value='bar-scrubber')
+    driver.execute_script(f"arguments[0].setAttribute('style', 'left: 3.5%;')", dot)
+    time.sleep(DELAY)
+    dot.click()
+    time.sleep(DELAY)
+
+    print('continue')
+    video.click()
 
 def loop(driver: WebDriver, current: int, left: int) -> None:
     for i in range(0, left):
         print(f'currently playing episode {current+i}')
-        time.sleep(5)
         toggle_full_screen(driver)
+        if get_currenttime(driver) < INTRO:
+            skip_intro(driver)
         
         interval: int = get_duration(driver)
         print(interval)
