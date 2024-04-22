@@ -57,28 +57,14 @@ def add_cookies(driver: WebDriver) -> WebDriver:
 def main():
     print('Start scraping')
     
-    """
-        improvement
-        1. skip intro
-        2. write as OOP
-        3. maybe also functional?
-        4. add tests
-        5. skip to episode
-            - check if episode exist -> end program if not
-            - if episode already played (>= duration-outro) -> play again since beginning
-        6. login via api instead and get session -> can skip login page -> use serie url
-    """
-
     driver: WebDriver = add_cookies(create_driver())
     driver.get(os.getenv('URL'))
 
-    # login(driver, username, password)
-    # goto(driver, By.CLASS_NAME, 'recent-carousel')
-    # goto(driver, By.CLASS_NAME, 'season')
-    
-    # (current, left) = search_for_unwatched_episode(driver) if SKIP_TO_EPISODE < 1 else skip_to_episode(driver, SKIP_TO_EPISODE)
-    # left = left if EPISODE_TO_WATCH<0 else EPISODE_TO_WATCH
-    # loop(driver, current, left)
+    goto(driver, By.CLASS_NAME, 'recent-carousel')
+    goto(driver, By.CLASS_NAME, 'season')
+
+    (current, left) = search_for_unwatched_episode(driver)
+    loop(driver, current, left)
     
     time.sleep(DELAY)
     driver.quit()
