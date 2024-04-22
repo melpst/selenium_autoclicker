@@ -97,12 +97,14 @@ def toggle_full_screen(driver: WebDriver) -> None:
     list(filter(lambda x: x.accessible_name == 'fullscreen', elements))[0].click()
     time.sleep(DELAY)
 
+def get_currenttime(driver: WebDriver) -> int:
+    video: WebElement = driver.find_element(by=By.CSS_SELECTOR, value='video')
+    return int(video.get_property('currentTime'))
+
 def get_duration(driver: WebDriver) -> int:
     video: WebElement = driver.find_element(by=By.CSS_SELECTOR, value='video')
-    current_time: int = int(video.get_property('currentTime'))
-    duration: int = int(video.get_property('duration'))
+    return int(video.get_property('duration'))-get_currenttime(driver)-OUTRO
 
-    return duration-current_time-OUTRO
 
 def skip_to_episode(driver: WebDriver, episode: int) -> List[int]:
     episodes: List[WebElement] = driver.find_elements(by=By.CLASS_NAME, value='carousel-cell-left_subtitle')
