@@ -88,11 +88,14 @@ def search_for_unwatched_episode(driver: WebDriver) -> List[int]:
     return [len(elements)-len(not_played)+1,len(not_played)]
     
 def toggle_full_screen(driver: WebDriver) -> None:
-    time.sleep(3)
+    time.sleep(5)
+
+    print('toggle media control')
     control_panel: WebElement = driver.find_element(by=By.CLASS_NAME, value='media-control')
     driver.execute_script("arguments[0].setAttribute('class', 'media-control')", control_panel)
-    time.sleep(DELAY)
-    
+    time.sleep(2)
+
+    print('toggle fullscreen')
     elements: List[WebElement] = driver.find_elements(by=By.CLASS_NAME, value='media-control-button')
     list(filter(lambda x: x.accessible_name == 'fullscreen', elements))[0].click()
     time.sleep(DELAY)
