@@ -124,9 +124,30 @@ def skip_intro(driver: WebDriver) -> None:
     print('continue')
     video.click()
 
+def reload(driver) -> bool:
+    print('reload')
+    counter: int = 3
+    while counter>0:
+        time.sleep(DELAY)
+        loading = driver.find_element(By.CLASS_NAME, 'spinner-three-bounce')
+        if 'none' in loading.get_dom_attribute('style'):
+            break
+        print(f'reload {counter}')
+        counter -= 1
+        driver.refresh()
+    if counter==0:
+        return False
+    return True
+    
+
 def loop(driver: WebDriver, current: int, left: int) -> None:
     for i in range(0, left):
         print(f'currently playing episode {current+i}')
+
+        if not reload(driver):
+            print('reload failed')
+            break
+
         toggle_full_screen(driver)
         if get_currenttime(driver) < INTRO:
             skip_intro(driver)
