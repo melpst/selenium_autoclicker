@@ -140,12 +140,31 @@ def reload(driver) -> bool:
             play_clickable.click()
             continue
         
+        try:
+            error: WebElement = driver.find_element(by=By.CLASS_NAME, value='player-error-screen__title')
+        except NoSuchElementException:
+            error = None
+        print(error)
+        
+        if error:
+            print(error.text)
+
+        if error and error.text == 'Could not play video.':
+            counter -= 1
+            reload: WebElement = driver.find_element(by=By.CLASS_NAME, value='player-error-screen__reload')
+            reload.click()
+            continue
+
         loading = driver.find_element(By.CLASS_NAME, 'spinner-three-bounce')
         if 'none' in loading.get_dom_attribute('style'):
             break
+
+        # if stuck in the middle -> shift dot 1%
+        
         print(f'reload {counter}')
         counter -= 1
         driver.refresh()
+        
     if counter==0:
         return False
     return True
