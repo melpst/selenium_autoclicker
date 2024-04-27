@@ -17,6 +17,7 @@ TIMEOUT = 5
 DELAY = 1
 INTRO = 95
 OUTRO = 150
+SEEKBAR = 4.4
 
 SKIP_TO_EPISODE = None
 EPISODE_TO_WATCH = None
@@ -117,7 +118,7 @@ def skip_intro(driver: WebDriver) -> None:
 
     print('skip intro')
     dot = driver.find_element(by=By.CLASS_NAME, value='bar-scrubber')
-    driver.execute_script(f"arguments[0].setAttribute('style', 'left: 3.5%;')", dot)
+    driver.execute_script(f"arguments[0].setAttribute('style', 'left: {SEEKBAR}%;')", dot)
     time.sleep(DELAY)
     dot.click()
     time.sleep(DELAY)
