@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.common.exceptions import NoSuchElementException
 
 from typing import List, Dict
 import os
@@ -129,6 +130,16 @@ def reload(driver) -> bool:
     counter: int = 3
     while counter>0:
         time.sleep(DELAY)
+        try:
+            play_clickable: WebElement = driver.find_element(by=By.CLASS_NAME, value='player-poster.clickable')
+        except NoSuchElementException:
+            play_clickable = None
+        print(play_clickable)
+        
+        if play_clickable:
+            play_clickable.click()
+            continue
+        
         loading = driver.find_element(By.CLASS_NAME, 'spinner-three-bounce')
         if 'none' in loading.get_dom_attribute('style'):
             break
