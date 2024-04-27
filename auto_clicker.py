@@ -12,9 +12,9 @@ import re
 
 load_dotenv(override=True)
 
-TIMEOUT = 30
+TIMEOUT = 5
 DELAY = 1
-INTRO = 100
+INTRO = 95
 OUTRO = 150
 
 SKIP_TO_EPISODE = None
